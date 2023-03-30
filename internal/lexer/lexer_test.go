@@ -22,6 +22,10 @@ func Test_Tokenization(t *testing.T) {
 			input:          `"hello world"!{}`,
 			expectedTokens: []Token{{Type: TokenStringLiteral, ValueString: "hello world"}, {Type: TokenBang}, {Type: TokenOpenBrace}, {Type: TokenCloseBrace}},
 		},
+		{
+			input:          "\"hello world\" \"something\"	\n\"more text\"",
+			expectedTokens: []Token{{Type: TokenStringLiteral, ValueString: "hello world"}, {Type: TokenStringLiteral, ValueString: "something"}, {Type: TokenStringLiteral, ValueString: "more text"}},
+		},
 	}
 
 	for i, c := range testCases {

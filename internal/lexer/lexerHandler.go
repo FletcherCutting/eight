@@ -3,6 +3,7 @@ package lexer
 import (
 	"fmt"
 	"io"
+	"unicode"
 )
 
 type LexerHandler struct {
@@ -40,23 +41,32 @@ func (lh *LexerHandler) Peek() (Token, error) {
 		return lh.tokens[lh.position+1], nil
 	}
 
-	characterBuffer := make([]byte, 1)
+	var character rune
 
-	bytesRead, err := lh.data.Read(characterBuffer)
+	for {
+		characterBuffer := make([]byte, 1)
 
-	if bytesRead == 0 && err == io.EOF {
-		return Token{Type: TokenEOF}, nil
+		bytesRead, err := lh.data.Read(characterBuffer)
+
+		if bytesRead == 0 && err == io.EOF {
+			return Token{Type: TokenEOF}, nil
+		}
+
+		if err != nil {
+			return Token{}, fmt.Errorf("errored when reading bytes: %v", err)
+		}
+
+		if bytesRead == 0 {
+			return Token{}, fmt.Errorf("failed to read bytes")
+		}
+
+		character = rune(characterBuffer[0])
+
+		if !unicode.IsSpace(character) {
+			break
+		}
 	}
 
-	if err != nil {
-		return Token{}, fmt.Errorf("errored when reading bytes: %v", err)
-	}
-
-	if bytesRead == 0 {
-		return Token{}, fmt.Errorf("failed to read bytes")
-	}
-
-	character := rune(characterBuffer[0])
 	var returnToken Token
 
 	switch character {
