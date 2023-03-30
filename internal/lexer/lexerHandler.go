@@ -68,6 +68,12 @@ func (lh *LexerHandler) Peek() (Token, error) {
 		}
 
 		returnToken = Token{Type: TokenStringLiteral, ValueString: stringLiteral}
+	case '!':
+		returnToken = Token{Type: TokenBang}
+	case '{':
+		returnToken = Token{Type: TokenOpenBrace}
+	case '}':
+		returnToken = Token{Type: TokenCloseBrace}
 	default:
 		return Token{}, fmt.Errorf("unknown character: %v", character)
 	}
