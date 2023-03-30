@@ -18,7 +18,7 @@ func TestPeek(t *testing.T) {
 	}
 
 	if token.Type != expectedType {
-		t.Fatalf("Token.Type not as expected\nExpected: %s\nActual: %s", tokenReadableNames[expectedType], tokenReadableNames[token.Type])
+		t.Fatalf("Token.Type not as expected\nExpected: %s\nActual: %s", expectedType, token.Type)
 	}
 
 	if token.ValueString != expectedValueString {
@@ -32,7 +32,7 @@ func TestPeek(t *testing.T) {
 	}
 
 	if token.Type != expectedType {
-		t.Fatalf("Token.Type not as expected\nExpected: %s\nActual: %s", tokenReadableNames[expectedType], tokenReadableNames[token.Type])
+		t.Fatalf("Token.Type not as expected\nExpected: %s\nActual: %s", expectedType, token.Type)
 	}
 
 	if token.ValueString != expectedValueString {

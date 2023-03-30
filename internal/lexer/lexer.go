@@ -1,7 +1,7 @@
 package lexer
 
 const (
-	TokenIdentifier = iota
+	TokenIdentifier tokenType = iota
 	TokenString
 	TokenInt
 	TokenBool
@@ -11,9 +11,17 @@ const (
 	TokenBoolLiteral
 
 	TokenBang
+	TokenOpenBrace
+	TokenCloseBrace
 
 	TokenEOF
 )
+
+type tokenType int
+
+func (tt tokenType) String() string {
+	return tokenReadableNames[tt]
+}
 
 type Lexer interface {
 	Get() (Token, error)
@@ -21,13 +29,13 @@ type Lexer interface {
 }
 
 type Token struct {
-	Type        int
+	Type        tokenType
 	ValueString string
 	ValueInt    int
 	ValueBool   bool
 }
 
-var tokenReadableNames = map[int]string{
+var tokenReadableNames = map[tokenType]string{
 	TokenIdentifier:    "TokenIdentifier",
 	TokenString:        "TokenString",
 	TokenInt:           "TokenInt",
@@ -36,5 +44,7 @@ var tokenReadableNames = map[int]string{
 	TokenIntLiteral:    "TokenIntLiteral",
 	TokenBoolLiteral:   "TokenBoolLiteral",
 	TokenBang:          "TokenBang",
+	TokenOpenBrace:     "TokenOpenBrace",
+	TokenCloseBrace:    "TokenCloseBrace",
 	TokenEOF:           "TokenEOF",
 }
