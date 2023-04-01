@@ -41,30 +41,14 @@ func (lh *LexerHandler) Peek() (Token, error) {
 		return lh.tokens[lh.position+1], nil
 	}
 
-	var character rune
+	eof, character, err := lh.getNextCharacter()
 
-	for {
-		characterBuffer := make([]byte, 1)
+	if eof {
+		return Token{Type: TokenEOF}, nil
+	}
 
-		bytesRead, err := lh.data.Read(characterBuffer)
-
-		if bytesRead == 0 && err == io.EOF {
-			return Token{Type: TokenEOF}, nil
-		}
-
-		if err != nil {
-			return Token{}, fmt.Errorf("errored when reading bytes: %v", err)
-		}
-
-		if bytesRead == 0 {
-			return Token{}, fmt.Errorf("failed to read bytes")
-		}
-
-		character = rune(characterBuffer[0])
-
-		if !unicode.IsSpace(character) {
-			break
-		}
+	if err != nil {
+		return Token{}, err
 	}
 
 	var returnToken Token
@@ -91,6 +75,36 @@ func (lh *LexerHandler) Peek() (Token, error) {
 	lh.tokens = append(lh.tokens, returnToken)
 
 	return returnToken, nil
+}
+
+func (lh *LexerHandler) getNextCharacter() (bool, rune, error) {
+	var returnCharacter rune
+
+	for {
+		characterBuffer := make([]byte, 1)
+
+		bytesRead, err := lh.data.Read(characterBuffer)
+
+		if bytesRead == 0 && err == io.EOF {
+			return true, 0, nil
+		}
+
+		if err != nil {
+			return false, 0, fmt.Errorf("errored when reading bytes: %v", err)
+		}
+
+		if bytesRead == 0 {
+			return false, 0, fmt.Errorf("failed to read bytes")
+		}
+
+		returnCharacter = rune(characterBuffer[0])
+
+		if !unicode.IsSpace(returnCharacter) {
+			break
+		}
+	}
+
+	return false, returnCharacter, nil
 }
 
 func (lh *LexerHandler) positionBehindTokensLength() bool {
