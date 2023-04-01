@@ -55,13 +55,7 @@ func (lh *LexerHandler) Peek() (Token, error) {
 
 	switch character {
 	case '"':
-		stringLiteral, err := lh.readStringLiteral()
-
-		if err != nil {
-			return Token{}, fmt.Errorf("failed when reading string literal: %v", err)
-		}
-
-		returnToken = Token{Type: TokenStringLiteral, ValueString: stringLiteral}
+		returnToken, err = lh.readStringLiteral()
 	case '!':
 		returnToken = Token{Type: TokenBang}
 	case '{':
@@ -70,6 +64,10 @@ func (lh *LexerHandler) Peek() (Token, error) {
 		returnToken = Token{Type: TokenCloseBrace}
 	default:
 		return Token{}, fmt.Errorf("unknown character: %v", character)
+	}
+
+	if err != nil {
+		return Token{}, err
 	}
 
 	lh.tokens = append(lh.tokens, returnToken)
@@ -112,7 +110,7 @@ func (lh *LexerHandler) positionBehindTokensLength() bool {
 	return tokensLength > 0 && tokensLength-1 > lh.position
 }
 
-func (lh *LexerHandler) readStringLiteral() (string, error) {
+func (lh *LexerHandler) readStringLiteral() (Token, error) {
 	returnString := ""
 	characterBuffer := make([]byte, 1)
 
@@ -120,11 +118,11 @@ func (lh *LexerHandler) readStringLiteral() (string, error) {
 		bytesRead, err := lh.data.Read(characterBuffer)
 
 		if err != nil {
-			return "", fmt.Errorf("failed when reading string literal: %v", err)
+			return Token{}, fmt.Errorf("failed when reading string literal: %v", err)
 		}
 
 		if bytesRead == 0 {
-			return "", fmt.Errorf("no bytes read")
+			return Token{}, fmt.Errorf("no bytes read")
 		}
 
 		character := rune(characterBuffer[0])
@@ -136,5 +134,5 @@ func (lh *LexerHandler) readStringLiteral() (string, error) {
 		returnString += string(character)
 	}
 
-	return returnString, nil
+	return Token{Type: TokenStringLiteral, ValueString: returnString}, nil
 }
