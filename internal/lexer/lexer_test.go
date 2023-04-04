@@ -57,7 +57,7 @@ func Test_Tokenization(t *testing.T) {
 	}
 }
 
-func Test_Peek(t *testing.T) {
+func Test_LexerHandler_Peek(t *testing.T) {
 	testCases := []struct {
 		input           string
 		expectedToken   Token
