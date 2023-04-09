@@ -91,6 +91,10 @@ func (cr *characterReader) ReadNonWhitespaceCharacter() (bool, rune, error) {
 	return false, character, nil
 }
 
+func (cr *characterReader) Next() {
+	cr.bufferedCharacter = nil
+}
+
 func (cr *characterReader) getNextCharacter() (bool, rune, error) {
 	characterBuffer := make([]byte, 1)
 	bytesRead, err := cr.reader.Read(characterBuffer)

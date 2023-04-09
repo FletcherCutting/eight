@@ -39,7 +39,7 @@ func (lh *LexerHandler) Peek() (Token, error) {
 		return lh.tokens[lh.position+1], nil
 	}
 
-	eof, character, err := lh.reader.getNextNonWhitespaceCharacter()
+	eof, character, err := lh.reader.PeekNonWhitespaceCharacter()
 
 	if eof {
 		return Token{Type: TokenEOF}, nil
@@ -51,14 +51,23 @@ func (lh *LexerHandler) Peek() (Token, error) {
 
 	var returnToken Token
 
+	// check is number
+
+	// check is ident
+
+	// check special characters
 	switch character {
 	case '"':
+		lh.reader.Next()
 		returnToken, err = lh.readStringLiteral()
 	case '!':
+		lh.reader.Next()
 		returnToken = Token{Type: TokenBang}
 	case '{':
+		lh.reader.Next()
 		returnToken = Token{Type: TokenOpenBrace}
 	case '}':
+		lh.reader.Next()
 		returnToken = Token{Type: TokenCloseBrace}
 	default:
 		return Token{}, fmt.Errorf("unknown character: %v", character)
@@ -82,7 +91,7 @@ func (lh *LexerHandler) readStringLiteral() (Token, error) {
 	returnString := ""
 
 	for {
-		eof, character, err := lh.reader.getNextCharacter()
+		eof, character, err := lh.reader.Read()
 
 		if eof {
 			return Token{}, fmt.Errorf("unexpected EOF")
