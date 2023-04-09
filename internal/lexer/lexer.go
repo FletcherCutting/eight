@@ -1,7 +1,8 @@
 package lexer
 
 const (
-	TokenIdentifier tokenType = iota
+	TokenUnknown tokenType = iota
+	TokenIdentifier
 	TokenString
 	TokenInt
 	TokenBool
@@ -36,6 +37,7 @@ type Token struct {
 }
 
 var tokenReadableNames = map[tokenType]string{
+	TokenUnknown:       "TokenUnknown",
 	TokenIdentifier:    "TokenIdentifier",
 	TokenString:        "TokenString",
 	TokenInt:           "TokenInt",

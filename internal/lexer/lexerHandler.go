@@ -2,6 +2,8 @@ package lexer
 
 import (
 	"fmt"
+	"strconv"
+	"unicode"
 )
 
 type LexerHandler struct {
@@ -52,6 +54,10 @@ func (lh *LexerHandler) Peek() (Token, error) {
 	var returnToken Token
 
 	// check is number
+	if unicode.IsNumber(character) {
+		returnToken, err = lh.readIntLiteral()
+		goto ENDPEEK
+	}
 
 	// check is ident
 
@@ -70,9 +76,10 @@ func (lh *LexerHandler) Peek() (Token, error) {
 		lh.reader.Next()
 		returnToken = Token{Type: TokenCloseBrace}
 	default:
-		return Token{}, fmt.Errorf("unknown character: %v", character)
+		return Token{}, fmt.Errorf("unknown character: %v", string(character))
 	}
 
+ENDPEEK:
 	if err != nil {
 		return Token{}, err
 	}
@@ -109,4 +116,35 @@ func (lh *LexerHandler) readStringLiteral() (Token, error) {
 	}
 
 	return Token{Type: TokenStringLiteral, ValueString: returnString}, nil
+}
+
+func (lh *LexerHandler) readIntLiteral() (Token, error) {
+	intString := ""
+
+	for {
+		eof, character, err := lh.reader.Peek()
+
+		if eof {
+			break
+		}
+
+		if err != nil {
+			return Token{}, err
+		}
+
+		if !unicode.IsNumber(character) {
+			break
+		}
+
+		intString += string(character)
+		lh.reader.Next()
+	}
+
+	returnInt, err := strconv.Atoi(intString)
+
+	if err != nil {
+		return Token{}, err
+	}
+
+	return Token{Type: TokenIntLiteral, ValueInt: returnInt}, nil
 }

@@ -27,6 +27,14 @@ func Test_Tokenization(t *testing.T) {
 			input:          strings.NewReader("\"hello world\" \"something\"	\n\"more text\""),
 			expectedTokens: []Token{{Type: TokenStringLiteral, ValueString: "hello world"}, {Type: TokenStringLiteral, ValueString: "something"}, {Type: TokenStringLiteral, ValueString: "more text"}},
 		},
+		{
+			input:          strings.NewReader(`123`),
+			expectedTokens: []Token{{Type: TokenIntLiteral, ValueInt: 123}},
+		},
+		{
+			input:          strings.NewReader(`123 456 99`),
+			expectedTokens: []Token{{Type: TokenIntLiteral, ValueInt: 123}, {Type: TokenIntLiteral, ValueInt: 456}, {Type: TokenIntLiteral, ValueInt: 99}},
+		},
 	}
 
 	for i, c := range testCases {
