@@ -2,19 +2,17 @@ package lexer
 
 import (
 	"fmt"
-	"io"
-	"unicode"
 )
 
 type LexerHandler struct {
-	data     io.Reader
+	reader   *characterReader
 	tokens   []Token
 	position int
 }
 
-func New(data io.Reader) *LexerHandler {
+func New(reader *characterReader) *LexerHandler {
 	return &LexerHandler{
-		data:     data,
+		reader:   reader,
 		position: -1,
 	}
 }
@@ -41,7 +39,7 @@ func (lh *LexerHandler) Peek() (Token, error) {
 		return lh.tokens[lh.position+1], nil
 	}
 
-	eof, character, err := lh.getNextNonWhitespaceCharacter()
+	eof, character, err := lh.reader.getNextNonWhitespaceCharacter()
 
 	if eof {
 		return Token{Type: TokenEOF}, nil
@@ -75,55 +73,6 @@ func (lh *LexerHandler) Peek() (Token, error) {
 	return returnToken, nil
 }
 
-func (lh *LexerHandler) getNextCharacter() (bool, rune, error) {
-	characterBuffer := make([]byte, 1)
-	bytesRead, err := lh.data.Read(characterBuffer)
-
-	if bytesRead == 0 && err == io.EOF {
-		return true, 0, nil
-	}
-
-	if err != nil {
-		return false, 0, err
-	}
-
-	if bytesRead == 0 {
-		return false, 0, fmt.Errorf("failed to read bytes")
-	}
-
-	return false, rune(characterBuffer[0]), nil
-}
-
-func (lh *LexerHandler) getNextNonWhitespaceCharacter() (bool, rune, error) {
-	var returnCharacter rune
-
-	for {
-		characterBuffer := make([]byte, 1)
-
-		bytesRead, err := lh.data.Read(characterBuffer)
-
-		if bytesRead == 0 && err == io.EOF {
-			return true, 0, nil
-		}
-
-		if err != nil {
-			return false, 0, fmt.Errorf("errored when reading bytes: %v", err)
-		}
-
-		if bytesRead == 0 {
-			return false, 0, fmt.Errorf("failed to read bytes")
-		}
-
-		returnCharacter = rune(characterBuffer[0])
-
-		if !unicode.IsSpace(returnCharacter) {
-			break
-		}
-	}
-
-	return false, returnCharacter, nil
-}
-
 func (lh *LexerHandler) positionBehindTokensLength() bool {
 	tokensLength := len(lh.tokens)
 	return tokensLength > 0 && tokensLength-1 > lh.position
@@ -133,7 +82,7 @@ func (lh *LexerHandler) readStringLiteral() (Token, error) {
 	returnString := ""
 
 	for {
-		eof, character, err := lh.getNextCharacter()
+		eof, character, err := lh.reader.getNextCharacter()
 
 		if eof {
 			return Token{}, fmt.Errorf("unexpected EOF")

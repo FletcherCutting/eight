@@ -1,35 +1,36 @@
 package lexer
 
 import (
+	"io"
 	"strings"
 	"testing"
 )
 
 func Test_Tokenization(t *testing.T) {
 	testCases := []struct {
-		input          string
+		input          io.Reader
 		expectedTokens []Token
 	}{
 		{
-			input:          `"hello world"`,
+			input:          strings.NewReader(`"hello world"`),
 			expectedTokens: []Token{{Type: TokenStringLiteral, ValueString: "hello world"}},
 		},
 		{
-			input:          `"hello world""something""more text"`,
+			input:          strings.NewReader(`"hello world""something""more text"`),
 			expectedTokens: []Token{{Type: TokenStringLiteral, ValueString: "hello world"}, {Type: TokenStringLiteral, ValueString: "something"}, {Type: TokenStringLiteral, ValueString: "more text"}},
 		},
 		{
-			input:          `"hello world"!{}`,
+			input:          strings.NewReader(`"hello world"!{}`),
 			expectedTokens: []Token{{Type: TokenStringLiteral, ValueString: "hello world"}, {Type: TokenBang}, {Type: TokenOpenBrace}, {Type: TokenCloseBrace}},
 		},
 		{
-			input:          "\"hello world\" \"something\"	\n\"more text\"",
+			input:          strings.NewReader("\"hello world\" \"something\"	\n\"more text\""),
 			expectedTokens: []Token{{Type: TokenStringLiteral, ValueString: "hello world"}, {Type: TokenStringLiteral, ValueString: "something"}, {Type: TokenStringLiteral, ValueString: "more text"}},
 		},
 	}
 
 	for i, c := range testCases {
-		lexer := New(strings.NewReader(c.input))
+		lexer := New(&characterReader{reader: c.input})
 
 		for _, v := range c.expectedTokens {
 			token, err := lexer.Read()
@@ -59,29 +60,29 @@ func Test_Tokenization(t *testing.T) {
 
 func Test_LexerHandler_Peek(t *testing.T) {
 	testCases := []struct {
-		input           string
+		input           io.Reader
 		expectedToken   Token
 		inputTokenCount int
 	}{
 		{
-			input:           `"hello world"`,
+			input:           strings.NewReader(`"hello world"`),
 			expectedToken:   Token{Type: TokenStringLiteral, ValueString: "hello world"},
 			inputTokenCount: 1,
 		},
 		{
-			input:           `"hello world""something""more text"`,
+			input:           strings.NewReader(`"hello world""something""more text"`),
 			expectedToken:   Token{Type: TokenStringLiteral, ValueString: "hello world"},
 			inputTokenCount: 2,
 		},
 		{
-			input:           `"hello world"!{}`,
+			input:           strings.NewReader(`"hello world"!{}`),
 			expectedToken:   Token{Type: TokenStringLiteral, ValueString: "hello world"},
 			inputTokenCount: 4,
 		},
 	}
 
 	for i, c := range testCases {
-		lexer := New(strings.NewReader(c.input))
+		lexer := New(&characterReader{reader: c.input})
 
 		for range make([]byte, c.inputTokenCount) {
 			token, err := lexer.Peek()
