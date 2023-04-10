@@ -60,6 +60,10 @@ func (lh *LexerHandler) Peek() (Token, error) {
 	}
 
 	// check is ident
+	if unicode.IsLetter(character) {
+		returnToken, err = lh.readIdent()
+		goto ENDPEEK
+	}
 
 	// check special characters
 	switch character {
@@ -147,4 +151,35 @@ func (lh *LexerHandler) readIntLiteral() (Token, error) {
 	}
 
 	return Token{Type: TokenIntLiteral, ValueInt: returnInt}, nil
+}
+
+func (lh *LexerHandler) readIdent() (Token, error) {
+	ident := ""
+
+	for {
+		eof, character, err := lh.reader.Peek()
+
+		if eof {
+			break
+		}
+
+		if err != nil {
+			return Token{}, err
+		}
+
+		if !(unicode.IsLetter(character) || unicode.IsNumber(character) || character == '_') {
+			break
+		}
+
+		ident += string(character)
+		lh.reader.Next()
+	}
+
+	token, ok := knownIdents[ident]
+
+	if ok {
+		return token, nil
+	}
+
+	return Token{Type: TokenIdent, ValueString: ident}, nil
 }

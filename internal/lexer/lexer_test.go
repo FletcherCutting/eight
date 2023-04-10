@@ -35,6 +35,26 @@ func Test_Tokenization(t *testing.T) {
 			input:          strings.NewReader(`123 456 99`),
 			expectedTokens: []Token{{Type: TokenIntLiteral, ValueInt: 123}, {Type: TokenIntLiteral, ValueInt: 456}, {Type: TokenIntLiteral, ValueInt: 99}},
 		},
+		{
+			input:          strings.NewReader(`ident`),
+			expectedTokens: []Token{{Type: TokenIdent, ValueString: "ident"}},
+		},
+		{
+			input:          strings.NewReader(`ident_with_underscores`),
+			expectedTokens: []Token{{Type: TokenIdent, ValueString: "ident_with_underscores"}},
+		},
+		{
+			input:          strings.NewReader(`true`),
+			expectedTokens: []Token{{Type: TokenBool, ValueBool: true}},
+		},
+		{
+			input:          strings.NewReader(`false`),
+			expectedTokens: []Token{{Type: TokenBool, ValueBool: false}},
+		},
+		{
+			input:          strings.NewReader(`ident1 ident2 true false`),
+			expectedTokens: []Token{{Type: TokenIdent, ValueString: "ident1"}, {Type: TokenIdent, ValueString: "ident2"}, {Type: TokenBool, ValueBool: true}, {Type: TokenBool, ValueBool: false}},
+		},
 	}
 
 	for i, c := range testCases {

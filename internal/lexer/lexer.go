@@ -2,7 +2,7 @@ package lexer
 
 const (
 	TokenUnknown tokenType = iota
-	TokenIdentifier
+	TokenIdent
 	TokenString
 	TokenInt
 	TokenBool
@@ -38,7 +38,7 @@ type Token struct {
 
 var tokenReadableNames = map[tokenType]string{
 	TokenUnknown:       "TokenUnknown",
-	TokenIdentifier:    "TokenIdentifier",
+	TokenIdent:         "TokenIdent",
 	TokenString:        "TokenString",
 	TokenInt:           "TokenInt",
 	TokenBool:          "TokenBool",
@@ -49,4 +49,9 @@ var tokenReadableNames = map[tokenType]string{
 	TokenOpenBrace:     "TokenOpenBrace",
 	TokenCloseBrace:    "TokenCloseBrace",
 	TokenEOF:           "TokenEOF",
+}
+
+var knownIdents = map[string]Token{
+	"true":  {Type: TokenBool, ValueBool: true},
+	"false": {Type: TokenBool, ValueBool: false},
 }
